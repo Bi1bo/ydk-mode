@@ -70,6 +70,12 @@
 ;;     !side
 ;;     79853073
 
+;; Also, YDK mode will calculate the total number of cards in the Main, Extra
+;; and Side Decks (in that order), and display those totals in the modeline.
+;; The above deck would have a modeline display of:
+
+;;     (YDK[5/1/1])
+
 ;;; Code:
 
 (defvar ydk-mode-syntax-table
@@ -80,16 +86,58 @@
     table)
   "Syntax table to use in YDK mode.")
 
+(defvar ydk-magic-comment-regexp
+  "^\\(?:#\\|!\\)\\(main\\|extra\\|side\\)$"
+  "Regexp for \"magic\" comments denoting the start of a deck.")
+
 (defvar ydk-mode-font-lock-keywords
-  '(("^\\(?:#\\|!\\)\\(main\\|extra\\|side\\)$" 1 font-lock-warning-face prepend))
+  `((,ydk-magic-comment-regexp 1 font-lock-warning-face prepend))
   "Highlighting keywords for YDK mode.")
+
+(defvar ydk-passcode-regexp
+  "[[:digit:]]+"
+  "Regexp for a line with a passcode on it.")
+
+(defun ydk-make-stats ()
+  "Make a new stats alist."
+  (list (cons 'main 0) (cons 'extra 0) (cons 'side 0)))
+
+(defun ydk-stats ()
+  "Get the number of cards in each deck in the current YDK buffer."
+  (let ((stats (ydk-make-stats)) current)
+    (save-excursion
+      (goto-char (point-min))
+      (while (> (point-max) (point))
+        (when (looking-at ydk-magic-comment-regexp)
+          ;; Set the deck whose total will be incremented.
+          (setq current (intern (match-string 1))))
+        (skip-syntax-forward " ")
+        (when (and current (looking-at ydk-passcode-regexp))
+          ;; Increment the total by one.
+          (setcdr (assq current stats) (1+ (cdr (assq current stats)))))
+        (forward-line 1)))
+    stats))
+
+(defun ydk-mode-update-mode-name ()
+  "Update the modeline with the buffer's decks' totals."
+  (let ((stats (ydk-stats)))
+    (setq mode-name (format "YDK[%s/%s/%s]"
+                            (cdr (assq 'main stats))
+                            (cdr (assq 'extra stats))
+                            (cdr (assq 'side stats))))))
+
+(defun ydk-mode-change-function (_start _end _length)
+  "Work for YDK mode whenever the buffer changes."
+  (ydk-mode-update-mode-name))
 
 ;;;###autoload
 (define-derived-mode ydk-mode text-mode "YDK"
   "Major mode for editing Yu-Gi-Oh! deck files."
   (set (make-local-variable 'comment-start) "# ")
   (set (make-local-variable 'comment-end) "")
-  (set (make-local-variable 'font-lock-defaults) '(ydk-mode-font-lock-keywords)))
+  (set (make-local-variable 'font-lock-defaults) '(ydk-mode-font-lock-keywords))
+  (add-hook 'after-change-functions #'ydk-mode-change-function nil t)
+  (ydk-mode-update-mode-name))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.ydk\\'" . ydk-mode))

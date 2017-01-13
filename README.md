@@ -51,3 +51,9 @@ would look something like this:
     23995346
     !side
     79853073
+
+Also, YDK mode will calculate the total number of cards in the Main, Extra
+and Side Decks (in that order), and display those totals in the modeline.
+The above deck would have a modeline display of:
+
+    (YDK[5/1/1])
