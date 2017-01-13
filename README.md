@@ -51,8 +51,3 @@ would look something like this:
     23995346
     !side
     79853073
-
-To use this mode, simply add the following to your init file, and ".ydk"
-files you open will be colored syntactically:
-
-    (require 'ydk-mode)
