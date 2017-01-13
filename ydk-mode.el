@@ -1,4 +1,4 @@
-;;; ydk-mode.el --- Language support for Yu-Gi-Oh! deck files -*- lexical-binding: t; -*-
+;;; ydk-mode.el --- Language support for Yu-Gi-Oh! deck files
 
 ;; Copyright (C) 2017 Jackson Ray Hamilton
 
@@ -87,9 +87,9 @@
 ;;;###autoload
 (define-derived-mode ydk-mode text-mode "YDK"
   "Major mode for editing Yu-Gi-Oh! deck files."
-  (setq-local comment-start "# ")
-  (setq-local comment-end "")
-  (setq-local font-lock-defaults '(ydk-mode-font-lock-keywords)))
+  (set (make-local-variable 'comment-start) "# ")
+  (set (make-local-variable 'comment-end) "")
+  (set (make-local-variable 'font-lock-defaults) '(ydk-mode-font-lock-keywords)))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.ydk\\'" . ydk-mode))
