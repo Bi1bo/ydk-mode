@@ -7,6 +7,14 @@
 Provides language support for Yu-Gi-Oh! deck files.  These typically have a
 ".ydk" extension.  They are used in YGOPro and other dueling simulators.
 
+## Installation
+
+To install, [configure Melpa](https://melpa.org/#/getting-started), then run the
+command `M-x package-install RET ydk-mode RET`.  After that, ".ydk" files should
+open in YDK mode.
+
+## YDK Files
+
 YDK files consist of lists of newline-delimited integers.  These integers
 correspond to the 8-digit "passcodes" unique to each card. (See
 http://yugioh.wikia.com/wiki/Passcode for details.)  Each newline-delimited
